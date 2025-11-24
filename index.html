@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 AI Chatbot - Dorcas Innovations LLC</title>
+    <meta name="description" content="A professional AI chatbot powered by GitHub Models API">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 AI Chatbot</h1>
+            <p class="subtitle">Powered by GitHub Models API</p>
+        </header>
+
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-header">
+                <h3>⚙️ Settings</h3>
+                <button class="close-btn" onclick="toggleSettings()">×</button>
+            </div>
+            <div class="settings-content">
+                <div class="form-group">
+                    <label for="githubToken">GitHub Personal Access Token:</label>
+                    <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxxx">
+                    <small>Your token is stored locally in your browser and never sent anywhere except to GitHub's API.</small>
+                </div>
+                <div class="form-group">
+                    <label for="modelSelect">AI Model:</label>
+                    <select id="modelSelect">
+                        <option value="openai/gpt-4.1-mini" selected>GPT-4.1 Mini</option>
+                        <option value="openai/gpt-4o">GPT-4o</option>
+                        <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
+                        <option value="mistral-ai/Mistral-Large">Mistral Large</option>
+                        <option value="meta-llama/Llama-3.3-70B-Instruct">Llama 3.3 70B</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="temperature">Temperature: <span id="tempValue">0.7</span></label>
+                    <input type="range" id="temperature" min="0" max="1" step="0.1" value="0.7">
+                </div>
+                <div class="form-group">
+                    <label for="maxTokens">Max Tokens:</label>
+                    <input type="number" id="maxTokens" min="50" max="2000" value="500">
+                </div>
+                <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="toolbar">
+                <button class="btn btn-secondary" onclick="toggleSettings()">⚙️ Settings</button>
+                <button class="btn btn-secondary" onclick="clearChat()">🧹 Clear Chat</button>
+                <button class="btn btn-secondary" onclick="exportChat()">💾 Export</button>
+            </div>
+
+            <div class="status-bar" id="statusBar">
+                <span id="statusText">Please configure your GitHub Token in Settings</span>
+            </div>
+
+            <div class="chat-container" id="chatContainer">
+                <div class="welcome-message">
+                    <h2>👋 Welcome to AI Chatbot!</h2>
+                    <p>Get started by:</p>
+                    <ol>
+                        <li>Click "⚙️ Settings" to add your GitHub Personal Access Token</li>
+                        <li>Generate a token at <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a></li>
+                        <li>Start chatting with the AI!</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="input-container">
+                <textarea 
+                    id="messageInput" 
+                    placeholder="Type your message here..." 
+                    rows="1"
+                    disabled
+                ></textarea>
+                <button class="btn btn-send" id="sendBtn" onclick="sendMessage()" disabled>
+                    📤 Send
+                </button>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 <a href="https://github.com/MMcBerry-bit/ai-chatbot-project" target="_blank">Dorcas Innovations LLC</a> | 
+            <a href="https://github.com/MMcBerry-bit/ai-chatbot-project/blob/main/LICENSE" target="_blank">MIT License</a></p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

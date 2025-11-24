@@ -1,0 +1,16 @@
+# AI Chatbot - Requirements for GUI and Web versions
+# Developed by Dorcas Innovations LLC
+# Install with: pip install -r requirements_app.txt
+
+openai>=1.0.0
+azure-ai-inference>=1.0.0
+
+# For GUI version (tkinter is built-in with Python)
+# No additional packages needed for tkinter
+
+# For Web version
+streamlit>=1.28.0
+
+# For building standalone executable
+pyinstaller>=6.0.0
+auto-py-to-exe>=2.4.0

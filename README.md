@@ -1,44 +1,65 @@
 # AI Chatbot - Dorcas Innovations LLC
 
-A professional AI chatbot application powered by GitHub Models API, available in multiple formats: console, GUI, and web applications.
+A professional AI chatbot application powered by GitHub Models API, available in multiple formats: console, GUI, web applications, and **now hosted on GitHub Pages**!
 
 ![Python](https://img.shields.io/badge/python-3.13+-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)
+![GitHub Pages](https://img.shields.io/badge/demo-GitHub%20Pages-blue.svg)
+
+## 🌐 Live Demo
+
+**Try it now:** [https://mmcberry-bit.github.io/ai-chatbot-project/](https://mmcberry-bit.github.io/ai-chatbot-project/)
+
+The static web version runs entirely in your browser with no server required!
 
 ## 🌟 Features
 
-- **Multiple Interfaces**: Console, Desktop GUI (tkinter), and Web (Streamlit)
+- **Multiple Interfaces**: Browser (GitHub Pages), Console, Desktop GUI (tkinter), and Web (Streamlit)
 - **AI-Powered**: Uses OpenAI GPT-4.1-mini via GitHub Models
+- **GitHub Pages Hosted**: Static web version accessible from anywhere
 - **Microsoft Store Ready**: Professional version prepared for commercial distribution
 - **Conversation History**: Maintains context across chat sessions
 - **Customizable Settings**: Adjustable temperature and token limits
 - **Persistent Storage**: Saves conversations and preferences locally
+- **No Server Required**: Browser version runs entirely client-side
 
 ## 📦 Available Versions
 
-### 1. Console Version (`src/ai_chatbot.py`)
+### 1. Browser Version (GitHub Pages) ⭐ NEW!
+Access the chatbot directly in your browser - no installation required!
+
+**Live Demo:** [https://mmcberry-bit.github.io/ai-chatbot-project/](https://mmcberry-bit.github.io/ai-chatbot-project/)
+
+Features:
+- Runs entirely in your browser
+- No server or installation needed
+- Responsive design for mobile and desktop
+- Export chat history
+- Persistent settings and conversations
+
+### 2. Console Version (`src/ai_chatbot.py`)
 Simple command-line interface for quick AI interactions.
 
 ```bash
 python src/ai_chatbot.py
 ```
 
-### 2. Desktop GUI (`src/chatbot_gui.py`)
+### 3. Desktop GUI (`src/chatbot_gui.py`)
 Native Windows application with tkinter interface.
 
 ```bash
 python src/chatbot_gui.py
 ```
 
-### 3. Web Application (`src/chatbot_web.py`)
+### 4. Web Application (`src/chatbot_web.py`)
 Modern web interface using Streamlit.
 
 ```bash
 streamlit run src/chatbot_web.py
 ```
 
-### 4. Store-Ready Version (`src/chatbot_store_ready.py`)
+### 5. Store-Ready Version (`src/chatbot_store_ready.py`)
 Enhanced version with professional features for Microsoft Store.
 
 ```bash
@@ -97,6 +118,12 @@ All dependencies are listed in `requirements_app.txt`:
 
 ```
 ai-chatbot-project/
+├── index.html                     # GitHub Pages static web app
+├── styles.css                     # Styling for web app
+├── app.js                        # JavaScript for web app
+├── .github/
+│   └── workflows/
+│       └── deploy-pages.yml      # GitHub Pages deployment
 ├── src/
 │   ├── ai_chatbot.py              # Console version
 │   ├── chatbot_gui.py             # Basic GUI version
@@ -136,6 +163,34 @@ python build_for_store.py
 ```
 
 The executable will be created in the `dist/` folder.
+
+## 🌐 GitHub Pages Deployment
+
+The static web version is automatically deployed to GitHub Pages whenever changes are pushed to the main branch.
+
+### How to Deploy Your Own Instance
+
+1. **Fork this repository**
+2. **Enable GitHub Pages**:
+   - Go to Settings > Pages
+   - Source: Deploy from a branch
+   - Branch: `main` / (root)
+   - Click Save
+3. **Access your deployment**: 
+   - Your app will be available at `https://YOUR_USERNAME.github.io/ai-chatbot-project/`
+
+The GitHub Actions workflow (`.github/workflows/deploy-pages.yml`) handles automatic deployment.
+
+### Using the Web App
+
+1. Visit the deployed site
+2. Click "⚙️ Settings"
+3. Add your GitHub Personal Access Token:
+   - Generate at [github.com/settings/tokens](https://github.com/settings/tokens)
+   - Minimum scopes: No special scopes needed for public models
+4. Start chatting!
+
+Your token and conversations are stored locally in your browser and never sent anywhere except to GitHub's API.
 
 ## 📱 Microsoft Store Deployment
 

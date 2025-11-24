@@ -24,19 +24,24 @@ def build_executable():
         # "--icon=ai_chatbot.ico",
         
         # Add data files
-        "--add-data", "STORE_PUBLISHING_GUIDE.md;.",
-        "--add-data", "APP_README.md;.",
+        "--add-data", "docs/STORE_PUBLISHING_GUIDE.md;.",
+        "--add-data", "docs/APP_README.md;.",
         
         # Hidden imports (in case of issues)
         "--hidden-import", "tkinter",
         "--hidden-import", "openai",
+        
+        # Exclude unnecessary packages
+        "--exclude-module", "IPython",
+        "--exclude-module", "jupyter",
+        "--exclude-module", "notebook",
         
         # Optimize
         "--strip",                      # Remove debug symbols
         "--optimize", "2",              # Optimize bytecode
         
         # Main file
-        "chatbot_store_ready.py"
+        "src/chatbot_store_ready.py"
     ]
     
     try:

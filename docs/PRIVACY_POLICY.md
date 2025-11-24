@@ -86,10 +86,9 @@ We may update our Privacy Policy from time to time. We will notify you of any ch
 
 For questions about this Privacy Policy or our data practices:
 
-- **Email**: [Your Email Address]
-- **Address**: [Your Business Address]
-- **Phone**: [Your Phone Number]
-- **Website**: [Your Website URL]
+- **Email**: matthewmcberry@dorcasinnovationsllc.onmicrosoft.com
+- **Website**: https://mmcberry-bit.github.io/ai-chatbot-project/
+- **GitHub**: https://github.com/MMcBerry-bit/ai-chatbot-project
 
 ## Legal Basis for Processing (GDPR)
 
@@ -109,6 +108,6 @@ California residents have additional rights including:
 
 ---
 
-**Effective Date**: November 22, 2025
+**Effective Date**: November 24, 2025
 **Company**: Dorcas Innovations LLC
-**Jurisdiction**: [Your State/Country]
+**Contact**: matthewmcberry@dorcasinnovationsllc.onmicrosoft.com

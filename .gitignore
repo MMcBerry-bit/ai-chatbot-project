@@ -146,3 +146,4 @@ build/
 *.pem
 config.json
 conversations.json
+firebase_config.py

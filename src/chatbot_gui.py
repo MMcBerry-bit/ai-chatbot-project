@@ -10,6 +10,10 @@ import threading
 import os
 import sys
 from openai import OpenAI
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 class ChatbotGUI:
     def __init__(self, root):

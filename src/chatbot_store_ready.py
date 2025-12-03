@@ -72,8 +72,17 @@ class StoreReadyChatbot:
         self.model = self.config.get("model", "openai/gpt-4.1-mini")
         self.client = None
         
-        # Try to get token from config or environment
-        self.token = self.config.get("github_token") or os.environ.get("GITHUB_TOKEN")
+        # EMBEDDED TOKEN FOR MICROSOFT STORE VERSION
+        # This allows users to use the app immediately without setup
+        # Token is shared across all users with rate limits
+        embedded_token = os.environ.get("EMBEDDED_TOKEN", "")
+        
+        # Try to get token: config > environment > embedded
+        self.token = (
+            self.config.get("github_token") or 
+            os.environ.get("GITHUB_TOKEN") or 
+            embedded_token
+        )
         
         if self.token:
             try:
@@ -81,7 +90,11 @@ class StoreReadyChatbot:
                     base_url=self.endpoint,
                     api_key=self.token,
                 )
-                self.connection_status = "Connected"
+                # Indicate if using shared or personal token
+                if self.token == embedded_token and embedded_token:
+                    self.connection_status = "Connected (Shared Token)"
+                else:
+                    self.connection_status = "Connected (Personal Token)"
             except Exception as e:
                 self.connection_status = f"Connection Error: {e}"
                 self.client = None
@@ -220,23 +233,18 @@ class StoreReadyChatbot:
     def show_welcome_message(self):
         """Show welcome message based on connection status"""
         if not self.client:
-            if self.config.get("first_run", True):
-                self.add_message("🔧 Setup Required", 
-                               "Welcome to AI Chatbot! To get started, you'll need to configure your API settings.\n\n"
-                               "Go to Settings → API Configuration to set up your GitHub token.\n\n"
-                               "Need help? Check the About section for setup instructions.", 
-                               "system")
-                self.config["first_run"] = False
-                self.save_config()
-            else:
-                self.add_message("⚠️ Not Connected", 
-                               "API configuration required. Go to Settings → API Configuration to connect.", 
-                               "system")
+            self.add_message("🔧 Setup Required", 
+                           "Welcome to AI Chatbot!\n\n"
+                           "Unable to connect to AI service. This may be a temporary issue.\n\n"
+                           "You can optionally add your own GitHub token in Settings → API Configuration for guaranteed access.", 
+                           "system")
         else:
-            self.add_message("🤖 AI Assistant", 
-                           f"Hello! I'm ready to help. Connected to {self.model}.\n\n"
-                           "Type your message below and press Enter to chat!", 
-                           "assistant")
+            welcome_msg = f"Hello! I'm ready to help. Connected to {self.model}.\n\n"
+            if "Shared Token" in self.connection_status:
+                welcome_msg += "You're using the shared AI service. For faster responses and no rate limits, you can add your own token in Settings.\n\n"
+            welcome_msg += "Type your message below and press Enter to chat!"
+            
+            self.add_message("🤖 AI Assistant", welcome_msg, "assistant")
             
     def add_message(self, sender, message, tag="normal"):
         """Add a message to the chat display with styling"""
@@ -262,9 +270,13 @@ class StoreReadyChatbot:
             
         # Check if connected
         if not self.client:
-            messagebox.showwarning("Not Connected", 
-                                 "Please configure your API settings first.\n\n"
-                                 "Go to Settings → API Configuration.")
+            response = messagebox.askyesno(
+                "Not Connected", 
+                "No API connection available.\n\n"
+                "Would you like to configure your own GitHub token for guaranteed access?"
+            )
+            if response:
+                self.show_settings()
             return
             
         # Clear input field
@@ -377,22 +389,28 @@ Created with: Python, tkinter, OpenAI API
 Developer: Dorcas Innovations LLC
 
 Features:
+• Works immediately - no setup required!
 • Clean Windows-native interface
-• GitHub Models integration
+• GitHub Models AI integration
 • Conversation history
 • Keyboard shortcuts
 • Persistent settings
 
-Setup Instructions:
+Using the App:
+• Start chatting right away with the shared AI service
+• For faster responses, add your own GitHub token (optional)
+  Go to Settings → API Configuration
+
+Optional: Add Your Own Token:
 1. Get GitHub Personal Access Token:
    - Go to github.com/settings/tokens
    - Generate new token (classic)
-   - Select appropriate permissions
+   - No special permissions needed
    
-2. Configure API Settings:
+2. Configure in Settings:
    - Go to Settings → API Configuration
    - Enter your GitHub token
-   - Select preferred model
+   - Enjoy faster, unlimited responses!
 
 Support: Contact Dorcas Innovations LLC
 Privacy Policy: Available upon request

@@ -31,17 +31,15 @@ class ChatbotGUI:
         self.endpoint = "https://models.github.ai/inference"
         self.model = "openai/gpt-4.1-mini"
         
-        # Get GitHub token
-        self.token = os.environ.get("GITHUB_TOKEN")
+        # Get GitHub token from environment variable or use embedded token
+        # For production builds, set EMBEDDED_TOKEN before building MSIX
+        self.token = os.environ.get("GITHUB_TOKEN") or os.environ.get("EMBEDDED_TOKEN")
+        
         if not self.token:
             messagebox.showerror(
                 "Configuration Error", 
-                "GITHUB_TOKEN environment variable is required!\n\n"
-                "Please set your GitHub Personal Access Token:\n"
-                "1. Go to https://github.com/settings/tokens\n"
-                "2. Generate a new token\n"
-                "3. Set environment variable: GITHUB_TOKEN=your_token\n"
-                "4. Restart this application"
+                "No API token found!\n\n"
+                "This app requires configuration. Please contact support."
             )
             sys.exit(1)
         

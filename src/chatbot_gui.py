@@ -28,8 +28,8 @@ class ChatbotGUI:
         
     def setup_chatbot(self):
         """Initialize the chatbot backend"""
-        self.endpoint = "https://models.github.ai/inference"
-        self.model = "openai/gpt-4.1-mini"
+        self.endpoint = "https://models.inference.ai.azure.com"
+        self.model = "gpt-4o-mini"
         
         # Get GitHub token from environment variable or use embedded token
         # For production builds, set EMBEDDED_TOKEN before building MSIX

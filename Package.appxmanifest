@@ -5,7 +5,7 @@
   
   <Identity Name="DorcasInnovations.AIChatbot"
             Publisher="CN=Dorcas Innovations LLC"
-            Version="1.0.0.0" />
+            Version="1.2.0.0" />
   
   <mp:PhoneIdentity PhoneProductId="your-guid-here" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
   

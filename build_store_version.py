@@ -35,8 +35,23 @@ def build_for_store():
     
     print(f"✅ Token loaded: {token[:10]}...")
     
-    # Set environment variable for the build
-    os.environ['EMBEDDED_TOKEN'] = token
+    # Create temporary build file with token embedded
+    print("\n📝 Creating build file with embedded token...")
+    source_file = Path("src/chatbot_store_ready.py")
+    build_file = Path("src/chatbot_store_build.py")
+    
+    # Read source and replace placeholder
+    with open(source_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # Replace placeholder with actual token
+    content = content.replace('{{EMBEDDED_TOKEN_PLACEHOLDER}}', token)
+    
+    # Write build file
+    with open(build_file, 'w', encoding='utf-8') as f:
+        f.write(content)
+    
+    print("✅ Build file created with embedded token")
     
     print("\n📦 Building executable with PyInstaller...")
     
@@ -65,13 +80,18 @@ def build_for_store():
         "--strip",
         "--optimize", "2",
         
-        # Main file
-        "src/chatbot_store_ready.py"
+        # Main file (use build file with embedded token)
+        "src/chatbot_store_build.py"
     ]
     
     try:
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
         print("✅ Build successful!")
+        
+        # Clean up build file
+        print("\n🧹 Cleaning up temporary files...")
+        build_file.unlink(missing_ok=True)
+        print("✅ Temporary files removed")
         
         exe_path = Path("dist") / "AI_Chatbot_Store.exe"
         if exe_path.exists():

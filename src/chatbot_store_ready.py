@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Store-Ready AI Chatbot
-Version prepared for Microsoft Store submission
+Store-Ready AI Chatbot - Version 1.2.0
+Premium Features with Microsoft Store IAP Integration
 """
 
 import tkinter as tk
@@ -13,6 +13,12 @@ import json
 import webbrowser
 from pathlib import Path
 from openai import OpenAI
+
+# Import our custom modules
+from usage_tracker import UsageTracker
+from store_iap import StoreIAP
+from premium_window import PremiumWindow
+from image_generator import ImageGenerator
 
 class StoreReadyChatbot:
     def __init__(self, root):
@@ -27,6 +33,11 @@ class StoreReadyChatbot:
         
         self.config_file = self.app_data_dir / "config.json"
         self.conversations_file = self.app_data_dir / "conversations.json"
+        
+        # Initialize usage tracking and IAP
+        self.usage_tracker = UsageTracker(self.app_data_dir)
+        self.store_iap = StoreIAP(self.app_data_dir)
+        self.image_generator = ImageGenerator(self.app_data_dir)
         
         # Load configuration
         self.load_config()
@@ -43,7 +54,7 @@ class StoreReadyChatbot:
         default_config = {
             "api_provider": "github",
             "github_token": "",
-            "model": "openai/gpt-4.1-mini",
+            "model": "gpt-4o-mini",
             "first_run": True,
             "theme": "default"
         }
@@ -68,20 +79,20 @@ class StoreReadyChatbot:
             
     def setup_chatbot(self):
         """Initialize the chatbot backend with better error handling"""
-        self.endpoint = "https://models.github.ai/inference"
-        self.model = self.config.get("model", "openai/gpt-4.1-mini")
+        self.endpoint = "https://models.inference.ai.azure.com"
+        self.model = self.config.get("model", "gpt-4o-mini")
         self.client = None
         
         # EMBEDDED TOKEN FOR MICROSOFT STORE VERSION
-        # This allows users to use the app immediately without setup
-        # Token is shared across all users with rate limits
-        embedded_token = os.environ.get("EMBEDDED_TOKEN", "")
+        # This placeholder is replaced during build process
+        # See build_store_version.py for details
+        embedded_token = "{{EMBEDDED_TOKEN_PLACEHOLDER}}"
         
         # Try to get token: config > environment > embedded
         self.token = (
             self.config.get("github_token") or 
             os.environ.get("GITHUB_TOKEN") or 
-            embedded_token
+            (embedded_token if not embedded_token.startswith("{{") else "")
         )
         
         if self.token:
@@ -163,9 +174,34 @@ class StoreReadyChatbot:
         self.chat_display.tag_config("assistant", foreground="#009900", font=("Segoe UI", 11, "bold"))
         self.chat_display.tag_config("system", foreground="#666666", font=("Segoe UI", 10, "italic"))
         
+        # Premium features frame (Model selector + Image button)
+        self.premium_frame = ttk.Frame(main_frame)
+        self.premium_frame.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(0, 5))
+        
+        # Model selector (for premium users)
+        ttk.Label(self.premium_frame, text="AI Model:").pack(side=tk.LEFT, padx=(0, 5))
+        self.model_var = tk.StringVar(value="gpt-4o-mini")
+        self.model_selector = ttk.Combobox(
+            self.premium_frame,
+            textvariable=self.model_var,
+            width=20,
+            state='readonly'
+        )
+        self.model_selector['values'] = ["gpt-4o-mini"]  # Free users see only this
+        self.model_selector.pack(side=tk.LEFT, padx=(0, 15))
+        
+        # Image generation button (for premium users)
+        self.image_button = ttk.Button(
+            self.premium_frame,
+            text="🎨 Generate Image",
+            command=self.generate_image,
+            state='disabled'
+        )
+        self.image_button.pack(side=tk.LEFT)
+        
         # Input frame with better layout
         input_frame = ttk.Frame(main_frame)
-        input_frame.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(0, 10))
+        input_frame.grid(row=3, column=0, sticky=(tk.W, tk.E), pady=(0, 10))
         input_frame.columnconfigure(0, weight=1)
         
         # Input field
@@ -193,13 +229,29 @@ class StoreReadyChatbot:
         
         # Control buttons frame
         control_frame = ttk.Frame(main_frame)
-        control_frame.grid(row=3, column=0, pady=(0, 10))
+        control_frame.grid(row=4, column=0, pady=(0, 10))
         
         # Buttons
         ttk.Button(control_frame, text="🧹 Clear", command=self.clear_chat).grid(row=0, column=0, padx=(0, 10))
         ttk.Button(control_frame, text="💾 Save", command=self.save_conversation).grid(row=0, column=1, padx=(0, 10))
         ttk.Button(control_frame, text="⚙️ Settings", command=self.show_settings).grid(row=0, column=2, padx=(0, 10))
-        ttk.Button(control_frame, text="ℹ️ About", command=self.show_about).grid(row=0, column=3)
+        ttk.Button(control_frame, text="ℹ️ About", command=self.show_about).grid(row=0, column=3, padx=(0, 10))
+        
+        # Premium button (highlighted)
+        self.premium_button = tk.Button(
+            control_frame,
+            text="⭐ Unlock Premium",
+            command=self.show_premium_window,
+            bg="#FFD700",
+            fg="#000000",
+            font=("Segoe UI", 10, "bold"),
+            relief=tk.RAISED,
+            cursor="hand2"
+        )
+        self.premium_button.grid(row=0, column=4, padx=(10, 0))
+        
+        # Update status display
+        self.update_status_display()
         
         # Show welcome message
         self.show_welcome_message()
@@ -268,6 +320,11 @@ class StoreReadyChatbot:
         if not message:
             return
             
+        # Check usage limits
+        if not self.usage_tracker.can_chat():
+            self.show_limit_reached_popup()
+            return
+            
         # Check if connected
         if not self.client:
             response = messagebox.askyesno(
@@ -285,6 +342,10 @@ class StoreReadyChatbot:
         # Add user message to display
         self.add_message("👤 You", message, "user")
         
+        # Increment usage counter
+        self.usage_tracker.increment_chat_count()
+        self.update_status_display()
+        
         # Disable send button while processing
         self.send_button.config(state='disabled')
         self.status_label.config(text="Thinking...")
@@ -299,13 +360,16 @@ class StoreReadyChatbot:
             user_msg = {"role": "user", "content": user_message}
             self.conversation_history.append(user_msg)
             
+            # Get the selected model (or use default)
+            selected_model = self.model_var.get() if hasattr(self, 'model_var') else self.model
+            
             # Get AI response
             response = self.client.chat.completions.create(
                 messages=self.conversation_history,
                 temperature=0.7,
                 top_p=0.95,
                 max_tokens=500,
-                model=self.model
+                model=selected_model
             )
             
             # Extract response
@@ -384,7 +448,7 @@ class StoreReadyChatbot:
         """Show about dialog"""
         about_text = """AI Chatbot - Store Edition
         
-Version: 1.0.0
+Version: 1.2.0
 Created with: Python, tkinter, OpenAI API
 Developer: Dorcas Innovations LLC
 
@@ -466,14 +530,13 @@ class SettingsDialog:
         # Model selection
         ttk.Label(main_frame, text="AI Model:").grid(row=5, column=0, sticky=tk.W, pady=(0, 5))
         
-        self.model_var = tk.StringVar(value=self.app.config.get("model", "openai/gpt-4.1-mini"))
+        self.model_var = tk.StringVar(value=self.app.config.get("model", "gpt-4o-mini"))
         model_combo = ttk.Combobox(main_frame, textvariable=self.model_var, width=57)
         model_combo['values'] = [
-            "openai/gpt-4.1-mini",
-            "openai/gpt-4.1",
-            "openai/gpt-5-mini",
-            "openai/gpt-5",
-            "microsoft/phi-4-mini-instruct"
+            "gpt-4o-mini",
+            "gpt-4o",
+            "o1-preview",
+            "o1-mini"
         ]
         model_combo.grid(row=6, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 20))
         
@@ -499,7 +562,7 @@ class SettingsDialog:
         try:
             # Test connection
             client = OpenAI(
-                base_url="https://models.github.ai/inference",
+                base_url="https://models.inference.ai.azure.com",
                 api_key=token,
             )
             
@@ -534,6 +597,96 @@ class SettingsDialog:
         
         # Clear and show welcome message
         self.app.clear_chat()
+    
+    def update_status_display(self):
+        """Update the status label with current tier and usage info"""
+        status_text = self.usage_tracker.get_status_text()
+        self.status_label.config(text=status_text)
+        
+        # Update premium button appearance based on tier
+        tier = self.usage_tracker.get_tier_name()
+        is_premium = self.usage_tracker.is_premium_active()
+        
+        if tier == "Premium Subscription":
+            self.premium_button.config(
+                text="⭐ Premium Active",
+                bg="#32CD32"
+            )
+            # Enable premium features
+            self.model_selector['values'] = ["gpt-4o-mini", "gpt-4o", "o1-preview", "o1-mini"]
+            self.image_button.config(state='normal')
+            
+        elif tier == "Unlimited":
+            self.premium_button.config(
+                text="🔓 Unlimited Active",
+                bg="#87CEEB"
+            )
+            # Unlimited users only get basic model
+            self.model_selector['values'] = ["gpt-4o-mini"]
+            self.image_button.config(state='disabled')
+            
+        else:
+            self.premium_button.config(
+                text="⭐ Unlock Premium",
+                bg="#FFD700"
+            )
+            # Free users only get basic model
+            self.model_selector['values'] = ["gpt-4o-mini"]
+            self.image_button.config(state='disabled')
+    
+    def show_premium_window(self):
+        """Show the premium features window"""
+        PremiumWindow(self.root, self)
+    
+    def show_limit_reached_popup(self):
+        """Show popup when daily limit is reached"""
+        remaining = self.usage_tracker.get_remaining_chats()
+        
+        response = messagebox.askyesno(
+            "Daily Limit Reached",
+            f"You've reached your daily limit of 15 chats.\n\n"
+            f"Upgrade to continue chatting:\n\n"
+            f"• Unlimited: $0.99 (one-time) - Unlimited chats\n"
+            f"• Premium: $9.99/month - Multiple AI models + Image generation\n\n"
+            f"Would you like to see premium options?",
+            icon='warning'
+        )
+        
+        if response:
+            self.show_premium_window()
+    
+    def generate_image(self):
+        """Generate an image using the input text"""
+        prompt = self.input_field.get().strip()
+        if not prompt:
+            messagebox.showwarning("No Prompt", "Please enter a description for the image you want to generate.")
+            return
+        
+        # Clear input
+        self.input_field.delete(0, tk.END)
+        
+        # Show generating message
+        self.add_message("🎨 Image Generator", f"Generating image: \"{prompt}\"...", "system")
+        self.send_button.config(state='disabled')
+        self.image_button.config(state='disabled')
+        
+        def on_complete(success, result):
+            if success:
+                self.add_message("🎨 Image Generator", 
+                               f"✅ Image generated successfully!\n\nSaved to: {result}\n\n"
+                               f"Opening image...", "system")
+                # Open the image
+                self.image_generator.open_image(result)
+            else:
+                self.add_message("🎨 Image Generator", 
+                               f"❌ Failed to generate image:\n{result}", "system")
+            
+            self.send_button.config(state='normal')
+            if self.usage_tracker.is_premium_active():
+                self.image_button.config(state='normal')
+        
+        # Generate in background
+        self.image_generator.generate_image(prompt, on_complete)
 
 def main():
     """Main function"""

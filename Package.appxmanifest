@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
          xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
-         xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10">
+         xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+         xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities">
   
   <Identity Name="DorcasInnovations.AIChatbot"
             Publisher="CN=Dorcas Innovations LLC"
             Version="1.2.0.0" />
   
-  <mp:PhoneIdentity PhoneProductId="your-guid-here" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="f996bdb4-5cec-472e-b817-d4b5c302c4cd" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
   
   <Properties>
     <DisplayName>AI Chatbot</DisplayName>
@@ -39,5 +40,6 @@
   
   <Capabilities>
     <Capability Name="internetClient" />
+    <rescap:Capability Name="runFullTrust" />
   </Capabilities>
 </Package>

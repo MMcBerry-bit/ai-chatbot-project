@@ -14,7 +14,7 @@ class PremiumWindow:
         # Create dialog window
         self.window = tk.Toplevel(parent)
         self.window.title("Unlock Premium Features")
-        self.window.geometry("600x700")
+        self.window.geometry("650x800")
         self.window.transient(parent)
         self.window.grab_set()
         
@@ -88,7 +88,7 @@ class PremiumWindow:
         
         ttk.Label(premium_frame, text="✓ EVERYTHING in Unlimited, PLUS:", font=("Segoe UI", 10, "bold"), foreground="#009900").pack(anchor=tk.W, pady=2)
         ttk.Label(premium_frame, text="✓ Multiple AI models (GPT-4o, o1-preview, o1-mini)", font=("Segoe UI", 10, "bold")).pack(anchor=tk.W, pady=2)
-        ttk.Label(premium_frame, text="✓ Image generation (DALL-E 3)", font=("Segoe UI", 10, "bold")).pack(anchor=tk.W, pady=2)
+        ttk.Label(premium_frame, text="✓ AI Image generation (Pollinations.ai)", font=("Segoe UI", 10, "bold")).pack(anchor=tk.W, pady=2)
         ttk.Label(premium_frame, text="✓ Priority support", font=("Segoe UI", 10)).pack(anchor=tk.W, pady=2)
         ttk.Label(premium_frame, text="✓ Early access to new features", font=("Segoe UI", 10)).pack(anchor=tk.W, pady=2)
         

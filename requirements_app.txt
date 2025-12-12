@@ -3,9 +3,13 @@
 # Install with: pip install -r requirements_app.txt
 
 openai>=1.0.0
-azure-ai-inference>=1.0.0
+azure-ai-inference>=1.0.0b9
 requests>=2.31.0
 python-dotenv>=1.0.0
+Pillow>=10.0.0
+
+# Microsoft Store IAP support
+winrt-Windows.Services.Store>=1.0.0
 
 # For GUI version (tkinter is built-in with Python)
 # No additional packages needed for tkinter

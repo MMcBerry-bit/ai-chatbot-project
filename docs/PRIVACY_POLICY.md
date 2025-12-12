@@ -1,7 +1,7 @@
 # Privacy Policy for AI Chatbot
 **Dorcas Innovations LLC**
 
-*Last Updated: November 22, 2025*
+*Last Updated: December 11, 2025*
 
 ## Introduction
 
@@ -9,10 +9,17 @@ Dorcas Innovations LLC ("we," "our," or "us") operates the AI Chatbot applicatio
 
 ## Information We Collect
 
-### Personal Information
-- **GitHub Token**: You provide your GitHub Personal Access Token for API authentication
-- **Conversation Data**: Chat messages are temporarily stored during your session
-- **Configuration Settings**: App preferences and settings are stored locally on your device
+### User Account Information
+- **Username**: Required for account creation and login
+- **Email Address**: Collected during registration for account recovery and support
+- **Password**: Stored as encrypted hash (SHA-256) for security
+- **Account Metadata**: Creation date, last login time
+- **User Preferences**: App settings and configuration data
+
+### Chat and Usage Data
+- **Conversation Data**: Chat messages stored locally in user-specific directories
+- **Usage Statistics**: Daily chat count, subscription tier, purchase history
+- **Configuration Settings**: AI model preferences, app customization
 
 ### Automatically Collected Information
 - **Usage Data**: Information about how you use the app (anonymized)
@@ -21,17 +28,23 @@ Dorcas Innovations LLC ("we," "our," or "us") operates the AI Chatbot applicatio
 
 ## How We Use Your Information
 
+- **Account Management**: To create, maintain, and authenticate your user account
 - **Service Provision**: To enable AI chat functionality through GitHub Models API
+- **Subscription Management**: To track free tier limits and premium subscriptions
+- **Data Segregation**: To keep your conversations and settings separate from other users
 - **App Improvement**: To enhance features and fix bugs
 - **Customer Support**: To provide technical assistance when requested
 - **Legal Compliance**: To comply with applicable laws and regulations
 
 ## Data Storage and Security
 
-### Local Storage
-- Your GitHub token and conversation history are stored locally on your device
+### Local Storage (Primary)
+- All user data is stored locally on your device in encrypted format
+- User accounts stored in: `AppData/Local/AI_Chatbot/users.json`
+- User-specific data in: `AppData/Local/AI_Chatbot/users/[username]/`
+- Passwords are never stored in plain text (SHA-256 hashing)
 - No chat conversations are transmitted to Dorcas Innovations LLC servers
-- Configuration data remains on your local machine
+- Each user's data is isolated in separate directories
 
 ### Third-Party Services
 - **GitHub Models API**: Your messages are sent to GitHub's API for AI processing
@@ -40,7 +53,9 @@ Dorcas Innovations LLC ("we," "our," or "us") operates the AI Chatbot applicatio
 
 ### Security Measures
 - All API communications use HTTPS encryption
-- GitHub tokens are stored securely on your local device
+- Passwords are hashed using SHA-256 encryption
+- User data is isolated per account for privacy
+- Authentication tokens stored securely on your local device
 - No personal data is transmitted to our servers
 
 ## Data Sharing
@@ -61,9 +76,27 @@ You have the right to:
 
 ## Data Retention
 
-- **Conversation Data**: Deleted when you close the app (not permanently stored)
+- **User Accounts**: Stored locally until you delete your account or uninstall the app
+- **Conversation Data**: Stored locally in your user directory until you delete them
 - **Configuration Data**: Stored until you uninstall the app
-- **GitHub Tokens**: Stored locally until you remove them from settings
+- **Purchase History**: Maintained for subscription management and support
+- **Login Sessions**: Active until you logout or close the app
+
+## User Account Management
+
+### Account Creation
+- You create a local account with username, email, and password
+- Account data is stored only on your local device
+- No cloud synchronization (data does not sync across devices)
+
+### Account Deletion
+- You can delete your account by contacting support
+- All associated data will be removed from your device
+- This action cannot be undone
+
+### Data Portability
+- Your conversation history can be exported via the "Save Conversation" feature
+- Account data is stored in standard JSON format for portability
 
 ## Children's Privacy
 

@@ -7,12 +7,15 @@ import requests
 from pathlib import Path
 import threading
 from datetime import datetime
+import os
 
 class ImageGenerator:
     def __init__(self, app_data_dir):
         self.app_data_dir = Path(app_data_dir)
-        self.images_dir = self.app_data_dir / "generated_images"
-        self.images_dir.mkdir(exist_ok=True)
+        # Save images to Downloads folder instead
+        downloads_folder = Path.home() / "Downloads" / "AI_Chatbot_Images"
+        self.images_dir = downloads_folder
+        self.images_dir.mkdir(exist_ok=True, parents=True)
         
         # Pollinations.ai API endpoint (free, no API key needed!)
         self.api_url = "https://image.pollinations.ai/prompt/{prompt}"

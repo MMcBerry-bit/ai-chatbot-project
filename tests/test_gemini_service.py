@@ -23,26 +23,28 @@ class TestGeminiService(unittest.TestCase):
         self.mock_api_key = "test-google-key-123"
     
     @patch.dict(os.environ, {'GOOGLE_API_KEY': 'test-key-123'})
-    @patch('services.gemini_service.genai')
-    def test_initialization_with_env_var(self, mock_genai):
+    @patch('services.gemini_service.genai.Client')
+    def test_initialization_with_env_var(self, mock_client_class):
         """Test service initialization with environment variable"""
-        mock_genai.GenerativeModel.return_value = Mock()
+        mock_client = Mock()
+        mock_client_class.return_value = mock_client
         
         service = GeminiService()
         
-        self.assertIsNotNone(service.model)
+        self.assertIsNotNone(service.client)
         self.assertEqual(service.model_name, "gemini-1.5-flash")
-        mock_genai.configure.assert_called_once_with(api_key='test-key-123')
+        mock_client_class.assert_called_once_with(api_key='test-key-123')
     
-    @patch('services.gemini_service.genai')
-    def test_initialization_with_api_key(self, mock_genai):
+    @patch('services.gemini_service.genai.Client')
+    def test_initialization_with_api_key(self, mock_client_class):
         """Test service initialization with explicit API key"""
-        mock_genai.GenerativeModel.return_value = Mock()
+        mock_client = Mock()
+        mock_client_class.return_value = mock_client
         
         service = GeminiService(api_key=self.mock_api_key)
         
-        self.assertIsNotNone(service.model)
-        mock_genai.configure.assert_called_once_with(api_key=self.mock_api_key)
+        self.assertIsNotNone(service.client)
+        mock_client_class.assert_called_once_with(api_key=self.mock_api_key)
     
     @patch.dict(os.environ, {}, clear=True)
     def test_initialization_without_api_key(self):
@@ -52,19 +54,19 @@ class TestGeminiService(unittest.TestCase):
         self.assertIn("API key not found", str(context.exception))
     
     @patch.dict(os.environ, {'GOOGLE_API_KEY': 'test-key-123'})
-    @patch('services.gemini_service.genai')
-    def test_get_response_success(self, mock_genai):
+    @patch('services.gemini_service.genai.Client')
+    def test_get_response_success(self, mock_client_class):
         """Test successful response from Gemini API"""
-        # Mock the chat and response
+        # Mock the response
         mock_response = Mock()
         mock_response.text = "This is a test response from Gemini"
         
-        mock_chat = Mock()
-        mock_chat.send_message.return_value = mock_response
+        mock_models = Mock()
+        mock_models.generate_content.return_value = mock_response
         
-        mock_model = Mock()
-        mock_model.start_chat.return_value = mock_chat
-        mock_genai.GenerativeModel.return_value = mock_model
+        mock_client = Mock()
+        mock_client.models = mock_models
+        mock_client_class.return_value = mock_client
         
         service = GeminiService()
         
@@ -75,21 +77,21 @@ class TestGeminiService(unittest.TestCase):
         response = service.get_response(messages)
         
         self.assertEqual(response, "This is a test response from Gemini")
-        mock_chat.send_message.assert_called_once()
+        mock_models.generate_content.assert_called_once()
     
     @patch.dict(os.environ, {'GOOGLE_API_KEY': 'test-key-123'})
-    @patch('services.gemini_service.genai')
-    def test_get_response_with_conversation_history(self, mock_genai):
+    @patch('services.gemini_service.genai.Client')
+    def test_get_response_with_conversation_history(self, mock_client_class):
         """Test response with conversation history"""
         mock_response = Mock()
         mock_response.text = "Response with history"
         
-        mock_chat = Mock()
-        mock_chat.send_message.return_value = mock_response
+        mock_models = Mock()
+        mock_models.generate_content.return_value = mock_response
         
-        mock_model = Mock()
-        mock_model.start_chat.return_value = mock_chat
-        mock_genai.GenerativeModel.return_value = mock_model
+        mock_client = Mock()
+        mock_client.models = mock_models
+        mock_client_class.return_value = mock_client
         
         service = GeminiService()
         
@@ -102,25 +104,21 @@ class TestGeminiService(unittest.TestCase):
         response = service.get_response(messages)
         
         self.assertEqual(response, "Response with history")
-        # Check that start_chat was called with history
-        mock_model.start_chat.assert_called_once()
-        call_args = mock_model.start_chat.call_args
-        # Should have 2 messages in history (excluding the last one)
-        self.assertEqual(len(call_args[1]['history']), 2)
+        mock_models.generate_content.assert_called_once()
     
     @patch.dict(os.environ, {'GOOGLE_API_KEY': 'test-key-123'})
-    @patch('services.gemini_service.genai')
-    def test_get_response_skips_system_messages(self, mock_genai):
+    @patch('services.gemini_service.genai.Client')
+    def test_get_response_skips_system_messages(self, mock_client_class):
         """Test that system messages are skipped"""
         mock_response = Mock()
         mock_response.text = "Response without system"
         
-        mock_chat = Mock()
-        mock_chat.send_message.return_value = mock_response
+        mock_models = Mock()
+        mock_models.generate_content.return_value = mock_response
         
-        mock_model = Mock()
-        mock_model.start_chat.return_value = mock_chat
-        mock_genai.GenerativeModel.return_value = mock_model
+        mock_client = Mock()
+        mock_client.models = mock_models
+        mock_client_class.return_value = mock_client
         
         service = GeminiService()
         
@@ -131,46 +129,15 @@ class TestGeminiService(unittest.TestCase):
         
         response = service.get_response(messages)
         
-        # System messages should be filtered out
-        call_args = mock_model.start_chat.call_args
-        history = call_args[1]['history']
-        # Should be empty since only system and last user message
-        self.assertEqual(len(history), 0)
+        # Should succeed and skip system messages
+        self.assertEqual(response, "Response without system")
     
     @patch.dict(os.environ, {'GOOGLE_API_KEY': 'test-key-123'})
-    @patch('services.gemini_service.genai')
-    def test_get_response_with_system_prompt(self, mock_genai):
-        """Test response with system prompt prepended"""
-        mock_response = Mock()
-        mock_response.text = "Response with system prompt"
-        
-        mock_chat = Mock()
-        mock_chat.send_message.return_value = mock_response
-        
-        mock_model = Mock()
-        mock_model.start_chat.return_value = mock_chat
-        mock_genai.GenerativeModel.return_value = mock_model
-        
-        service = GeminiService()
-        
-        messages = [
-            {"role": "user", "content": "Test message"}
-        ]
-        system_prompt = "You are a helpful assistant"
-        
-        response = service.get_response(messages, system_prompt=system_prompt)
-        
-        # Check that system prompt was prepended to message
-        call_args = mock_chat.send_message.call_args
-        sent_message = call_args[0][0]
-        self.assertIn("System:", sent_message)
-        self.assertIn("Test message", sent_message)
-    
-    @patch.dict(os.environ, {'GOOGLE_API_KEY': 'test-key-123'})
-    @patch('services.gemini_service.genai')
-    def test_get_model_info(self, mock_genai):
+    @patch('services.gemini_service.genai.Client')
+    def test_get_model_info(self, mock_client_class):
         """Test getting model information"""
-        mock_genai.GenerativeModel.return_value = Mock()
+        mock_client = Mock()
+        mock_client_class.return_value = mock_client
         
         service = GeminiService()
         

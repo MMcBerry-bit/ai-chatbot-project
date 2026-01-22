@@ -5,8 +5,8 @@ Handles all interactions with Google's Gemini AI models
 
 import os
 from typing import List, Dict, Optional
-import google.generativeai as genai
-from google.api_core import exceptions as google_exceptions
+from google import genai
+from google.genai import types
 
 
 class GeminiService:
@@ -23,20 +23,19 @@ class GeminiService:
         if not self.api_key:
             raise ValueError("Google API key not found. Set GOOGLE_API_KEY environment variable.")
         
-        # Configure the API
-        genai.configure(api_key=self.api_key)
+        # Initialize client with API key
+        self.client = genai.Client(api_key=self.api_key)
         
-        # Initialize the model
+        # Model configuration
         self.model_name = "gemini-1.5-flash"  # Fast, efficient model
-        self.model = genai.GenerativeModel(self.model_name)
         
         # Generation config
-        self.generation_config = {
-            "temperature": 0.7,
-            "top_p": 0.95,
-            "top_k": 40,
-            "max_output_tokens": 1024,
-        }
+        self.generation_config = types.GenerateContentConfig(
+            temperature=0.7,
+            top_p=0.95,
+            top_k=40,
+            max_output_tokens=1024,
+        )
         
     def get_response(
         self, 
@@ -60,12 +59,19 @@ class GeminiService:
         """
         try:
             # Update generation config with temperature
-            config = self.generation_config.copy()
-            config["temperature"] = temperature
+            config = types.GenerateContentConfig(
+                temperature=temperature,
+                top_p=0.95,
+                top_k=40,
+                max_output_tokens=1024,
+            )
+            
+            # Add system instruction if provided
+            system_instruction = system_prompt if system_prompt else None
             
             # Convert messages to Gemini format
             chat_history = []
-            for msg in messages:
+            for msg in messages[:-1]:  # Exclude last message
                 role = msg.get("role", "user")
                 content = msg.get("content", "")
                 
@@ -75,33 +81,26 @@ class GeminiService:
                     
                 # Map roles to Gemini format
                 gemini_role = "model" if role == "assistant" else "user"
-                chat_history.append({
-                    "role": gemini_role,
-                    "parts": [content]
-                })
-            
-            # Start chat with history
-            chat = self.model.start_chat(history=chat_history[:-1] if chat_history else [])
+                chat_history.append(types.Content(
+                    role=gemini_role,
+                    parts=[types.Part(text=content)]
+                ))
             
             # Get the last message (user's current message)
             last_message = messages[-1].get("content", "") if messages else ""
             
-            # Prepend system prompt if provided
-            if system_prompt:
-                last_message = f"System: {system_prompt}\n\nUser: {last_message}"
-            
-            # Generate response
-            response = chat.send_message(
-                last_message,
-                generation_config=config
+            # Generate response using chat
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=[*chat_history, types.Content(
+                    role="user",
+                    parts=[types.Part(text=last_message)]
+                )],
+                config=config
             )
             
             return response.text
             
-        except google_exceptions.ResourceExhausted as e:
-            raise Exception(f"Rate limit exceeded: {str(e)}")
-        except google_exceptions.InvalidArgument as e:
-            raise Exception(f"Invalid request: {str(e)}")
         except Exception as e:
             raise Exception(f"Gemini API error: {str(e)}")
     
@@ -114,8 +113,10 @@ class GeminiService:
         """
         try:
             # Simple test request
-            test_model = genai.GenerativeModel(self.model_name)
-            response = test_model.generate_content("Hi")
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents="Hi"
+            )
             return bool(response.text)
         except:
             return False

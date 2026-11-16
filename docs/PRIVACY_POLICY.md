@@ -1,7 +1,7 @@
 # Privacy Policy for AI Chatbot
 **Dorcas Innovations LLC**
 
-*Last Updated: December 11, 2025*
+*Last Updated: November 10, 2026*
 
 ## Introduction
 
@@ -17,7 +17,7 @@ Dorcas Innovations LLC ("we," "our," or "us") operates the AI Chatbot applicatio
 - **User Preferences**: App settings and configuration data
 
 ### Chat and Usage Data
-- **Conversation Data**: Chat messages stored locally in user-specific directories
+- **Conversation Data**: Saved conversations are stored locally in user-specific directories. Messages you send are transmitted to our backend service to generate a reply (see Third-Party Services)
 - **Usage Statistics**: Daily chat count, subscription tier, purchase history
 - **Configuration Settings**: AI model preferences, app customization
 
@@ -25,11 +25,14 @@ Dorcas Innovations LLC ("we," "our," or "us") operates the AI Chatbot applicatio
 - **Usage Data**: Information about how you use the app (anonymized)
 - **Error Reports**: Technical information when the app encounters issues
 - **Device Information**: Operating system version, app version for support purposes
+- **Install Identifier**: A random ID generated on your device, sent with each request to apply daily usage limits
+- **IP Address**: Received by our backend when the app connects, and used in hashed form to apply usage limits and prevent abuse
+- **Purchase Verification**: If you buy an add-on, a Microsoft Store ID key is sent to our backend so we can confirm the purchase with Microsoft
 
 ## How We Use Your Information
 
 - **Account Management**: To create, maintain, and authenticate your user account
-- **Service Provision**: To enable AI chat functionality through GitHub Models API
+- **Service Provision**: To enable AI chat functionality through our backend service and Microsoft Azure OpenAI Service
 - **Subscription Management**: To track free tier limits and premium subscriptions
 - **Data Segregation**: To keep your conversations and settings separate from other users
 - **App Improvement**: To enhance features and fix bugs
@@ -39,29 +42,33 @@ Dorcas Innovations LLC ("we," "our," or "us") operates the AI Chatbot applicatio
 ## Data Storage and Security
 
 ### Local Storage (Primary)
-- All user data is stored locally on your device in encrypted format
+- Account data and saved conversations are stored locally on your device
 - User accounts stored in: `AppData/Local/AI_Chatbot/users.json`
 - User-specific data in: `AppData/Local/AI_Chatbot/users/[username]/`
 - Passwords are never stored in plain text (SHA-256 hashing)
-- No chat conversations are transmitted to Dorcas Innovations LLC servers
+- Chat messages are sent to our backend service only to generate a reply. Our backend does not keep the content of your conversations
 - Each user's data is isolated in separate directories
 
 ### Third-Party Services
-- **GitHub Models API**: Your messages are sent to GitHub's API for AI processing
-- **GitHub's Privacy Policy**: https://docs.github.com/privacy
-- We do not store or have access to your conversations with the AI
+- **Dorcas Innovations backend (hosted on Microsoft Azure)**: Receives your messages, applies usage limits, and forwards them for AI processing
+- **Microsoft Azure OpenAI Service**: Processes your messages to generate replies, under Microsoft's terms
+- **Microsoft Privacy Statement**: https://privacy.microsoft.com/privacystatement
+- **Microsoft Store**: Processes purchases and confirms add-on ownership
+- **Pollinations.ai**: Receives your image prompts when you use image generation
+- Our backend stores usage counters and purchase status, not the content of your conversations
 
 ### Security Measures
 - All API communications use HTTPS encryption
 - Passwords are hashed using SHA-256 encryption
 - User data is isolated per account for privacy
-- Authentication tokens stored securely on your local device
-- No personal data is transmitted to our servers
+- The app contains no API keys; the AI service key is held only on our backend
+- Our backend receives your messages, install identifier and IP address as described above; your username, email and password are not sent to it
 
 ## Data Sharing
 
 We do not sell, trade, or rent your personal information to third parties. Data is only shared:
-- With GitHub Models API (for AI functionality)
+- With Microsoft Azure OpenAI Service (for AI functionality)
+- With Microsoft (to verify Store purchases)
 - When required by law
 - With your explicit consent
 
@@ -104,7 +111,7 @@ Our Service is not intended for children under 13. We do not knowingly collect p
 
 ## International Data Transfers
 
-Your data may be processed in countries other than your own when using GitHub's API services. We ensure appropriate safeguards are in place for such transfers.
+Your data may be processed in countries other than your own when using our backend and Microsoft Azure services. We ensure appropriate safeguards are in place for such transfers.
 
 ## Changes to This Privacy Policy
 

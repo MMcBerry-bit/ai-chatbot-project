@@ -99,11 +99,9 @@ class StoreReadyChatbot:
         self.model = self.config.get("model", "gpt-4o-mini")
         self.client = None
         
-        # EMBEDDED TOKEN
-        embedded_token = "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"
-        
-        # Use embedded token
-        self.token = embedded_token
+        # No token is shipped in the source. This legacy 1.3.x version reads one
+        # from the environment; version 1.4.0 uses a backend and needs none.
+        self.token = os.environ.get("GITHUB_TOKEN", "")
         
         if self.token:
             try:
